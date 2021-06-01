@@ -9,7 +9,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 _SMALL_OBJECT_AREA_THRESH = 1000
 
 
-def overlay_bbox_cv(img, dets, class_names, score_thresh):
+def overlay_bbox_cv(img, dets, class_names, score_thresh, color):
     all_box = []
     for label in dets:
         for bbox in dets[label]:
@@ -21,18 +21,22 @@ def overlay_bbox_cv(img, dets, class_names, score_thresh):
     for box in all_box:
         label, x0, y0, x1, y1, score = box
         # color = self.cmap(i)[:3]
-        color = (_COLORS[label] * 255).astype(np.uint8).tolist()
-        text = '{}:{:.1f}%'.format(class_names[label], score * 100)
-        txt_color=(0, 0, 0) if np.mean(_COLORS[label]) > 0.5 else (255, 255, 255)
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        txt_size = cv2.getTextSize(text, font, 0.5, 2)[0]
-        cv2.rectangle(img, (x0, y0), (x1, y1), color, 2)
 
-        cv2.rectangle(img,
-                      (x0, y0 - txt_size[1] - 1),
-                      (x0 + txt_size[0] + txt_size[1], y0 - 1), color, -1)
-        cv2.putText(img, text, (x0, y0-1),
-                    font, 0.5, txt_color, thickness=1)
+        label_text = class_names[label]
+
+        if label_text == 'person':
+            #color = (_COLORS[label] * 255).astype(np.uint8).tolist()
+            text = '{}:{:.1f}%'.format(label_text, score * 100)
+            txt_color=(0, 0, 0) if np.mean(_COLORS[label]) > 0.5 else (255, 255, 255)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            txt_size = cv2.getTextSize(text, font, 0.5, 2)[0]
+            cv2.rectangle(img, (x0, y0), (x1, y1), color, 2)
+
+            cv2.rectangle(img,
+                        (x0, y0 - txt_size[1] - 1),
+                        (x0 + txt_size[0] + txt_size[1], y0 - 1), color, -1)
+            cv2.putText(img, text, (x0, y0-1),
+                        font, 0.5, txt_color, thickness=1)
     return img
 
 
